@@ -1,0 +1,6 @@
+Code run by Pablo Rodríguez Robles
+Environment variable UWHPSC is /Users/Pablo/Documents/workzone/storage/hpsc-uw
+Environment variable MYHPSC is /Users/Pablo/Documents/workzone/storage/my-hpsc-uw
+Imported numpy ok
+Imported matplotlib ok
+Imported pylab ok
