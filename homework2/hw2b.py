@@ -26,6 +26,9 @@ def quad_interp(xi,yi):
     error_message = "xi and yi should have length 3"
     assert len(xi)==3 and len(yi)==3, error_message
 
+    error_message = "it is not possible to have more than one point in the with the same xi"
+    assert (len(np.unique(xi)) == len(xi)), error_message
+
     # Set up linear system to interpolate through data points:
 
     A = np.array([[1, 1, 1], xi, xi**2]).T
@@ -35,9 +38,9 @@ def quad_interp(xi,yi):
     
     return c
 
+
 def plot_quad(xi, yi):
     c = quad_interp(xi,yi)
-
     
     # Plot the resulting polynomial:
     x = np.linspace(xi.min() - 1, xi.max() + 1, 1000)   # points to evaluate polynomial
@@ -86,14 +89,12 @@ def cubic_interp(xi,yi):
     return c
 
 
-
 def plot_cubic(xi, yi):
     c = cubic_interp(xi,yi)
-
     
     # Plot the resulting polynomial:
     x = np.linspace(xi.min() - 1, xi.max() + 1, 1000)   # points to evaluate polynomial
-    y = c[0] + c[1]*x + c[2]*x**2 + x[3]*x**3
+    y = c[0] + c[1]*x + c[2]*x**2 + c[3]*x**3
 
     plt.figure(1)       # open plot figure window
     plt.clf()           # clear figure
@@ -108,6 +109,63 @@ def plot_cubic(xi, yi):
     plt.savefig('cubic.png')   # save figure as .png file
 
 
+def poly_interp(xi,yi):
+    """
+    N-grade interpolation. 
+
+    """
+
+    # check inputs and print error message if not valid:
+
+    error_message = "xi and yi should have type numpy.ndarray"
+    assert (type(xi) is np.ndarray) and (type(yi) is np.ndarray), error_message
+
+    error_message = "xi and yi should have the same length"
+    assert len(xi)==len(yi), error_message
+
+    error_message = "it is not possible to have more than one point in the with the same xi"
+    assert (len(np.unique(xi)) == len(xi)), error_message
+
+    # Set up linear system to interpolate through data points:
+
+    n = len(xi)
+    a = [np.ones(n)]
+
+    for i in range(1, n):
+        a.append(xi**i)
+    
+    A = np.array(a).T
+    b = yi
+
+    c = solve(A,b)
+    
+    return c
+
+
+def plot_poly(xi, yi):
+    c = poly_interp(xi,yi)
+    
+    # Plot the resulting polynomial:
+    x = np.linspace(xi.min() - 1, xi.max() + 1, 1000)   # points to evaluate polynomial
+
+    n = len(xi)
+    y = 0
+    for i in range(0, n):
+        y = y + c[i]*x**i
+
+    plt.figure(1)       # open plot figure window
+    plt.clf()           # clear figure
+    plt.plot(x,y,'b-')  # connect points with a blue line
+
+    # Add data points  (polynomial should go through these points!)
+    plt.plot(xi,yi,'ro')   # plot as red circles
+    plt.ylim(-2,8)         # set limits in y for plot
+
+    plt.title("Data points and interpolating polynomial")
+
+    plt.savefig('poly.png')   # save figure as .png file
+
+    
 def test_quad1():
     """
     Test code, no return value or exception if test runs properly.
@@ -121,7 +179,26 @@ def test_quad1():
     # test that all elements have small error:
     assert np.allclose(c, c_true), \
         "Incorrect result, c = %s, Expected: c = %s" % (c,c_true)
-        
+
+    
+def test_cubic():
+    """
+    Test code, no return value or exception if test runs properly.
+    """
+    xi = np.array([-1.,  0.,  2., 4.])
+    yi = np.array([ 1., -1.,  7., 6.])
+    
+    c = quad_interp(xi,yi)
+    c_true = np.array([-1.   ,  1.25 ,  2.625, -0.625])
+    
+    print("c =      ", c)
+    print("c_true = ", c_true)
+    
+    # test that all elements have small error:
+    assert np.allclose(c, c_true), \
+        "Incorrect result, c = %s, Expected: c = %s" % (c,c_true)
+
+    
 if __name__=="__main__":
     # "main program"
     # the code below is executed only if the module is executed at the command line,
@@ -131,4 +208,4 @@ if __name__=="__main__":
     # not if the module is imported.
     print("Running test...")
     test_quad1()
-
+    test_cubic()
